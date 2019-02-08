@@ -1,0 +1,2 @@
+# EAuth
+Easy auth library.
