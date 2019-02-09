@@ -1,6 +1,6 @@
 <?php
 /**
- * This is file based user auth library
+ * This is SQL based user auth library
  * @author @Xere_yukky
  */
 require 'html.php';
@@ -34,7 +34,8 @@ class Main
                     $prepare->execute();
                     $user = $prepare->fetch(PDO::FETCH_ASSOC);
 			  	} catch (PDOException $e) {
-			  	return $view->login_form($dir,'Something wrong.');
+			  		echo $view->login_form($dir,'Something wrong.');
+			  	return true;
 			  	}
 			  	if ($user['email'] == $_POST['email']
 			  	 && password_verify($_POST['password'], $user['password'])) {
@@ -46,10 +47,12 @@ class Main
 			  	 	exit();
 			  	}
 			}else{
-				return $view->login_form($dir,'Invalid email address or invalid password or invalid csrf_token.');
+				echo $view->login_form($dir,'Invalid email address or invalid password or invalid csrf_token.');
+				return true;
 			}
 		}else{
-			return $view->login_form($dir);
+			echo $view->login_form($dir);
+			return true;
 		}
 	}
 
@@ -77,7 +80,8 @@ class Main
                     $prepare->execute();
                     $temp_user = $prepare->fetch(PDO::FETCH_ASSOC);
 				} catch (PDOException $e) {
-					return $view->comp($_POST['email'],$hashed_pass,'Something wrong.');
+					echo $view->comp($_POST['email'],$hashed_pass,'Something wrong.');
+					return true;
 				}
 				if ($temp_user['code'] === $_POST['code']
 					&& $temp_user['password'] === $_POST['password']) {
@@ -91,9 +95,11 @@ class Main
 						$prepare->bindValue(':email',$temp_user['email'], PDO::PARAM_STR);
 						$prepare->bindValue(':pass',$temp_user['password'], PDO::PARAM_STR);
 						$prepare->execute();
-						return $view->gj();
+						echo $view->gj();
+						return true;
 					} catch (PDOException $e) {
-						return $view->comp($_POST['email'],$hashed_pass,'Something wrong.');
+						echo $view->comp($_POST['email'],$hashed_pass,'Something wrong.');
+						return true;
 					}
 				}
 			}else{$view->comp($_POST['email'],$hashed_pass,'Invalid code');}
@@ -109,7 +115,8 @@ class Main
                     $prepare->execute();
                     $user = $prepare->fetch(PDO::FETCH_ASSOC);
 			  	} catch (PDOException $e) {
-			  		return $view->register_form('Something wrong.');
+			  		echo $view->register_form('Something wrong.');
+			  		return true;
 			  	}
 			  	if (empty($user['id'])) {
 			  		// usersテーブルにemailがなかったら仮アカウントにEmailがないか確認
@@ -120,7 +127,8 @@ class Main
                     	$prepare->execute();
                     	$temp_account = $prepare->fetch(PDO::FETCH_ASSOC);
                     } catch (PDOException $e) {
-                    	return $view->register_form('Something wrong.');
+                    	echo $view->register_form('Something wrong.');
+                    	return true;
 			  		}
 			  		if (empty($temp_account)) {
 			  			// temp_accountテーブルにemailがなかったら確認メールを送信
@@ -136,22 +144,26 @@ class Main
 							$prepare->bindValue(':unix',time(), PDO::PARAM_STR);
 							$prepare->execute();
 			  			} catch (PDOException $e) {
-			  				return $view->register_form('Something wrong.');
+			  				echo $view->register_form('Something wrong.');
+			  				return true;
 			  			}
 			  			$header = 'From: ' . mb_encode_mimeheader(EMAIL_FROM) . ' <' . EMAIL_FROM . '>';
 			  			$body = EMAIL_BODY.'
 			  			You email verification code is '.$rand_str.'
 			  			This user control system made by @Xere_yukky. thank you.';
 			  			if (mb_send_mail($_POST['email'], EMAIL_TITLE, $body, $header)) {
-			  				return $view->comp($_POST['email'],$hashed_pass);
-			  			}else{return $view->register_form('Email can not send.');}
-			  		}else{return $view->register_form('A mail is already send.');}
-			  	}else{return $view->register_form('This email is already used');}
+			  				echo $view->comp($_POST['email'],$hashed_pass);
+			  				return true;
+			  			}else{echo $view->register_form('Email can not send.');return true;}
+			  		}else{echo $view->register_form('A mail is already send.');return true;}
+			  	}else{echo $view->register_form('This email is already used');}
 			}else{
-				return $view->register_form('Invalid email address or invalid password or invalid csrf_token.');
+				echo $view->register_form('Invalid email address or invalid password or invalid csrf_token.');
+				return true;
 			}
 		}else{
-			return $view->register_form();
+			echo $view->register_form();
+			return true;
 		}
 	}
 	/* Filter_var
