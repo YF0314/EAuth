@@ -2,5 +2,9 @@
 require 'Main.php';
 
 $do = new Main;
-echo $do->register('register.php');
+if($do->register('register.php')){
+  // DONE
+}else{
+  // Something wrong
+}
 ?>
