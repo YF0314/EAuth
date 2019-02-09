@@ -2,5 +2,9 @@
 require 'Main.php';
 
 $do = new Main;
-echo $do->login('login.php');
+if ($do->login('tests.php')){
+  // echo 'DONE';
+}else{
+  // echo 'Something wrong';
+}
 ?>
